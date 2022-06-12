@@ -22,6 +22,23 @@ int main()
     double totalWithShipping;
     string fragile;
 
+    // initialize file stream variable to output data to at the end of program
+    ofstream fs;
+    fs.open("Output.txt"); // Open file stream
+    /*
+    If-statement below is to verify that the file is open. When I tested this, I could not get 
+    the fail condition to work and the program to exit such as when changing the file name to be incorrect to see if
+    this control structure works. I thought that maybe the below control structure 
+    may need to be commented out when the program was in "production" but I left it as is.
+    I did not include a ifstream variable as this assignment only requires output to the file.
+    */
+    if (!fs.is_open())
+    {
+        cout << "Could not open file. Program is exiting" << endl;
+        system("pause");
+        return -1;
+    }
+
     cout << "*******************************************************************************" << endl;
     cout << "******************** ITCS 2530 -- Programming Assignment 3 ********************" << endl;
     cout << "*******************************************************************************" << endl << endl;
@@ -32,8 +49,8 @@ int main()
     // Promt the user to ask if the item is fragile
     cout << setw(78) << left << setfill('.') << "Is the item fragile? (y=yes/n=no)" << ":";
     cin >> fragile;
-    transform(fragile.begin(), fragile.end(), fragile.begin(), ::tolower); // Changes the string to lowercase to accept all cases
-    if (!(fragile == "y" || fragile == "n")) // If incorrect value entered, exit program
+    transform(fragile.begin(), fragile.end(), fragile.begin(), ::toupper); // Changes the string to lowercase to accept all cases
+    if (!(fragile == "Y" || fragile == "N")) // If incorrect value entered, exit program
     {
         cout << "Invalid entry, exiting" << endl;
         return 1;
@@ -44,8 +61,8 @@ int main()
     // Prompt the user to enter the destination of the order
     cout << setw(78) << left << setfill('.') << "Please enter destination (usa/can/aus)" << ":";
     cin >> destinationName;
-    transform(destinationName.begin(), destinationName.end(), destinationName.begin(), ::tolower); // Changes the string to lowercase to accept all cases
-    if (!(destinationName == "usa" || destinationName == "can" || destinationName == "aus")) // If incorrect value entered, exit program
+    transform(destinationName.begin(), destinationName.end(), destinationName.begin(), ::toupper); // Changes the string to lowercase to accept all cases
+    if (!(destinationName == "USA" || destinationName == "CAN" || destinationName == "AUS")) // If incorrect value entered, exit program
     {
         cout << "Invalid entry, exiting" << endl;
         return 1;
@@ -54,18 +71,18 @@ int main()
 
     /*
     We need to find the shipping cost accounting for the destination. There are 4 tiers of shipping costs and 
-    each tier is a different amount for each destinationThe following code uses selection structures (if/else) 
+    each tier is a different amount for each destination. The following code uses selection structures (if/else) 
     to resolve the shipping cost and new total. I explored using a switch structure here instead but due to either 
-    the expression being logical or not numerical like in the instance of looking at the usa/can/aus strings, I 
+    the expression being logical or not numerical like in the instance of looking at the usa/can/aus strings, I thought
     that this was my best course for a selection structure.
     */
     if (orderTotal < 50.00)
-        if (destinationName == "usa")
+        if (destinationName == "USA")
         {
             shippingCost = 6.00;
             totalWithShipping = shippingCost + orderTotal;
         }
-        else if (destinationName == "can")
+        else if (destinationName == "CAN")
         {
             shippingCost = 8.00;
             totalWithShipping = shippingCost + orderTotal;
@@ -77,12 +94,12 @@ int main()
         }
     // Check for shipping cost if price between 50.01 and 100.00
     else if (orderTotal >= 50.01 && orderTotal <= 100.00)
-        if (destinationName == "usa")
+        if (destinationName == "USA")
         {
             shippingCost = 9.00;
             totalWithShipping = shippingCost + orderTotal;
         }
-        else if (destinationName == "can")
+        else if (destinationName == "CAN")
         {
             shippingCost = 12.00;
             totalWithShipping = shippingCost + orderTotal;
@@ -94,12 +111,12 @@ int main()
         }
     // check for shipping cost if order total between 100.01 and 150.0        
     else if (orderTotal >= 100.01 && orderTotal < 150.00)
-        if (destinationName == "usa")
+        if (destinationName == "USA")
         {
             shippingCost = 12.00;
             totalWithShipping = shippingCost + orderTotal;
         }
-        else if (destinationName == "can")
+        else if (destinationName == "CAN")
         {
             shippingCost = 15.00;
             totalWithShipping = shippingCost + orderTotal;
@@ -115,17 +132,32 @@ int main()
         shippingCost = 0;
         totalWithShipping = orderTotal;
     }
-        
+
 
     // Need to finally add the fragile fee to our new total if applicable
-    if (fragile == "y")
+    if (fragile == "Y")
+    {
+        shippingCost += FRAGILE_FEE;
         totalWithShipping += FRAGILE_FEE;
+    }
 
-                    
-    cout << totalWithShipping << endl;
 
+    // Output to the user
+    cout << setw(78) << left << setfill('.') << "Your item is"<< itemName << endl;
+    cout << setw(78) << left << setfill('.') << "Your shipping cost is" << '$' << fixed << setprecision(2) << shippingCost << endl;
+    cout << setw(78) << left << setfill('.') << "You are shipping to" << destinationName << endl;
+    cout << setw(78) << left << setfill('.') << "Your total shipping costs are" << '$' << fixed << setprecision(2) << totalWithShipping << endl << endl;
+    cout << setw(88) << right << setfill('.') << "Thank You!" << endl << endl;
+    // Output data to Output.txt
+    fs << itemName << '\t';
+    fs << shippingCost << '\t';
+    fs << destinationName << '\t';
+    fs << totalWithShipping << '\t';
+
+    // Close the file
+    fs.close();
+    
     system("pause");
 
     return 0;
 }
-
